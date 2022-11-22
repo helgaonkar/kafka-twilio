@@ -1,0 +1,35 @@
+package com.birthdayemail.twilioemail.service;
+
+import com.birthdayemail.twilioemail.model.EmailRequest;
+import com.sendgrid.*;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+
+@Service
+@Log4j2
+public class MailService {
+
+    @Autowired
+    SendGrid sendGrid;
+
+    public Response sendEmail(EmailRequest emailRequest) {
+        Mail mail = new Mail(new Email("your mail"), "Birthday Wishes", new Email(emailRequest.getTo()),new Content("text/plain", "Dear User, You're not getting older, you're just getting wiser. Happy, healthy, wonderful birthday to you, my friend!!!"));
+        mail.setReplyTo(new Email("your mail"));
+        Request request=new Request();
+
+        Response response=new Response();
+        try{
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            response=this.sendGrid.api(request);
+
+        } catch (IOException exception){
+            log.info(exception.getMessage());
+        }
+        return  response;
+    }
+}
